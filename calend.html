@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 60px;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        td,
+        th {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        td {
+            background-color: rgb(220, 220, 64, 0.3);
+        }
+
+        th {
+            background-color: rgb(220, 220, 64);
+            font-weight: bold;
+        }
+
+        .highlight {
+            background-color: yellow;
+        }
+
+        #images {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        #pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #calendar {
+            font-size: 26px;
+            font-weight: bold;
+            text-align: center;
+
+            color: rgb(37, 35, 35);
+
+        }
+    </style>
+</head>
+
+<body>
+    <div id="calendar"></div>
+    <div id="images">
+        <img id="pic" src="" alt="MonthPic">
+    </div>
+    <script>
+
+        function getDay(date) {
+            let day = date.getDay();
+            if (day == 0) day = 7;
+            return day - 1;
+        }
+        function createCalendar(elem, year, month, day) {
+            elem = document.querySelector('#calendar')
+            let d = new Date(year, month - 1, 1)
+            let table = `          
+        <caption>${d.toLocaleString('default', { month: 'long' })}, ${year}</caption>
+        <table>            
+        <tr>
+            <th>пн</th>
+            <th>вт</th>
+            <th>ср</th>
+            <th>чт</th>
+            <th>пт</th>
+            <th>сб</th>
+            <th>вс</th>
+        </tr>
+        <tr>`;
+
+            for (let i = 0; i < getDay(d); i++) {
+                table += '<td></td>'//пустые ячейки перед 1 числом
+            }
+
+            while (d.getMonth() == month - 1) {
+                // table += '<td>' + d.getDate() + '</td>'
+
+                let date = d.getDate();
+                let cell = `<td${date === day ? ' class="highlight"' : ''}>${date}</td>`;
+                table += cell;
+
+
+                if (getDay(d) % 7 == 6) {//6-это воскресенье, значит строка таблицы заканчивается
+                    table += '</tr><tr>'
+                }
+                d.setDate(d.getDate() + 1) //переходит к след.дню пока не закончится текущий мес
+            }
+            if (getDay(d) != 0) { //если первое число мес не понед.
+                for (let i = getDay(d); i < 7; i++)
+                    table += '<td></td>' //пустые ячейки добавить
+            }
+            table += '</tr></table>';
+            elem.innerHTML = table;
+            setImage(month);
+        }
+
+        function askDate() {
+            const dateInput = prompt('Введите дату в формате год/месяц/число');
+            if (dateInput) {
+                const [year, month, day] = dateInput.split('/').map(Number);//переводим строки в числа
+                if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {//проверяем если это теперь числа
+                    createCalendar('#calendar', year, month, day);
+                } else {
+                    alert('Неверный формат даты. Пожалуйста, введите дату в формате год/месяц/число');
+                }
+            }
+
+        }
+
+        function setImage(month) {
+            const image = document.getElementById('pic');
+            const imagePath = 'img/';
+            const seasons = {
+                'winter': 'win.jpg',
+                'spring': 'spr.jpg',
+                'summer': 'sum.jpg',
+                'autumn': 'fall.jpg'
+            };
+            let season;
+            if (month === 12 || month === 1 || month === 2)
+                season = 'winter';
+            else if (month >= 3 && month <= 5)
+                season = 'spring';
+            else if (month >= 6 && month <= 8) season = 'summer';
+            else if (month >= 9 && month <= 11) season = 'autumn';
+            else { alert("Ошибка!"); return; }
+
+            image.src = imagePath + seasons[season];//picture
+        }
+
+        askDate();
+
+        //  createCalendar('#calendar', "2024", "5");
+
+    </script>
+</body>
+
+</html>
